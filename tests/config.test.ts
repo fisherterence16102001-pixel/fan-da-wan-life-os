@@ -1,52 +1,50 @@
 #!/usr/bin/env node
 import { Client } from '@notionhq/client';
-import * as process from 'process';
 import { loadEnv } from './config';
 import { createLogger } from './logger';
-import { initializeNotionSystem } from './notion/schema';
-import { runDailyAnalysis, runMonthlyAnalysis, runWeeklyAnalysis } from './agents/analysis';
+import { createNotionClient } from './notion/client';
+import { initializeDatabaseSystem } from './notion/schema';
+import { runDailyAgent } from './agents/daily';
+import { runWeeklyAgent } from './agents/weekly';
+import { runMonthlyAgent } from './agents/monthly';
 
 async function main(): Promise<void> {
   const config = loadEnv();
   const logger = createLogger(config.logLevel);
-
-  logger.info(`Starting ${config.appName} (${config.appNameEn})`);
-
-  const client = new Client({ auth: config.notionToken });
+  const client = createNotionClient(config);
 
   const args = process.argv.slice(2);
   const command = args[0] ?? 'init';
 
+  logger.info(`Starting ${config.appName} (${config.appNameEn})`);
+
   if (command === 'init') {
-    await initializeNotionSystem(client, config);
+    const ids = await initializeDatabaseSystem(client, config);
+    logger.info(`Initialization complete: ${JSON.stringify(ids)}`);
     return;
   }
 
   if (command === 'sync') {
-    const ids = await initializeNotionSystem(client, config);
-    logger.info(`Sync complete. IDs: ${JSON.stringify(ids)}`);
+    const ids = await initializeDatabaseSystem(client, config);
+    logger.info(`Sync complete: ${JSON.stringify(ids)}`);
     return;
   }
 
   if (command === 'agent') {
     const agentType = args[1] ?? 'daily';
-    const today = new Date().toISOString().slice(0, 10);
 
     if (agentType === 'daily') {
-      const result = runDailyAnalysis(config, today);
-      logger.info(`Daily agent result: ${JSON.stringify(result)}`);
+      logger.info(`Daily agent: ${JSON.stringify(runDailyAgent(config))}`);
       return;
     }
 
     if (agentType === 'weekly') {
-      const result = runWeeklyAnalysis(config, '2026-09-24', '2026-09-30');
-      logger.info(`Weekly agent result: ${JSON.stringify(result)}`);
+      logger.info(`Weekly agent: ${JSON.stringify(runWeeklyAgent(config))}`);
       return;
     }
 
     if (agentType === 'monthly') {
-      const result = runMonthlyAnalysis(config, '2026-09');
-      logger.info(`Monthly agent result: ${JSON.stringify(result)}`);
+      logger.info(`Monthly agent: ${JSON.stringify(runMonthlyAgent(config))}`);
       return;
     }
   }

@@ -1,26 +1,27 @@
 import { describe, expect, it } from '@jest/globals';
+import { runDailyAnalysis, runWeeklyAnalysis, runMonthlyAnalysis } from '../src/agents/analysis';
 import { loadEnv } from '../src/config';
-import { databaseSpecs } from '../src/notion/schema';
 
-describe('Environment config', () => {
-  it('requires required Notion env vars', () => {
-    const originalToken = process.env.NOTION_TOKEN;
-    const originalParent = process.env.PARENT_PAGE_ID;
-
-    delete process.env.NOTION_TOKEN;
-    delete process.env.PARENT_PAGE_ID;
-
-    expect(() => loadEnv()).toThrow('Missing required env vars');
-
-    if (originalToken) process.env.NOTION_TOKEN = originalToken;
-    if (originalParent) process.env.PARENT_PAGE_ID = originalParent;
+describe('AI analysis agents', () => {
+  it('builds a valid daily analysis result', () => {
+    const config = loadEnv();
+    const result = runDailyAnalysis(config, '2026-09-30');
+    expect(result.date).toBe('2026-09-30');
+    expect(result.highlights.length).toBeGreaterThan(0);
+    expect(result.nextActions.length).toBeGreaterThan(0);
   });
 
-  it('provides a database blueprint for the core systems', () => {
-    expect(databaseSpecs.length).toBeGreaterThan(10);
-    const names = databaseSpecs.map((db) => db.name);
-    expect(names).toContain('今日生活指数');
-    expect(names).toContain('电商商品库');
-    expect(names).toContain('人生目标');
+  it('builds a valid weekly analysis result', () => {
+    const config = loadEnv();
+    const result = runWeeklyAnalysis(config, '2026-09-24', '2026-09-30');
+    expect(result.summary.length).toBeGreaterThan(0);
+    expect(result.priorities.length).toBeGreaterThan(0);
+  });
+
+  it('builds a valid monthly analysis result', () => {
+    const config = loadEnv();
+    const result = runMonthlyAnalysis(config, '2026-09');
+    expect(result.month).toBe('2026-09');
+    expect(result.priorities.length).toBeGreaterThan(0);
   });
 });

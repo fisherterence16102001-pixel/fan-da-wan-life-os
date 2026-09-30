@@ -1,19 +1,28 @@
+export type PropertyType =
+  | 'title'
+  | 'rich_text'
+  | 'number'
+  | 'date'
+  | 'checkbox'
+  | 'select'
+  | 'multi_select'
+  | 'url'
+  | 'email'
+  | 'phone_number'
+  | 'files';
+
 export interface FieldSpec {
   name: string;
-  type: 'title' | 'rich_text' | 'number' | 'date' | 'checkbox' | 'select' | 'multi_select' | 'relation' | 'url' | 'email' | 'phone_number' | 'people' | 'files';
-  format?: 'number' | 'dollar' | 'percent' | 'date' | 'time';
+  type: PropertyType;
+  format?: 'number' | 'dollar' | 'percent';
   options?: Array<{ name: string; color?: string }>;
-  relationDatabase?: string;
-  relationFieldName?: string;
 }
 
 export interface DatabaseSpec {
   key: string;
   name: string;
-  icon?: string;
   description?: string;
   properties: FieldSpec[];
-  parentType?: 'page_id';
 }
 
 export interface DashboardSpec {
@@ -27,7 +36,7 @@ export const dashboardSpecs: DashboardSpec[] = [
   {
     key: 'main-dashboard',
     title: '饭大碗的游戏人生 · 总控台',
-    description: '个人生活记录 + 成长 + 财富 + AI Agent 统一总入口',
+    description: '个人生活记录 + 成长 + 财富 + AI Agent 的统一总入口。',
     cards: [
       '今日生活指数',
       '今日 Top 3',
@@ -49,8 +58,8 @@ export const dashboardSpecs: DashboardSpec[] = [
       '连续打卡',
       '7日趋势',
       '30日趋势',
-      'AI今日总结',
-      'AI明日建议',
+      'AI 今日总结',
+      'AI 明日建议',
     ],
   },
 ];
@@ -59,7 +68,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'daily-life-index',
     name: '今日生活指数',
-    description: '每天总结生活状态、趋势和 AI 摘要',
+    description: '每天衡量生活指数、趋势和AI总结',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Life Score', type: 'number', format: 'number' },
@@ -75,19 +84,21 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'daily-schedule',
     name: '日程统筹',
+    description: '每日日程、时间管理和待办节点',
     properties: [
+      { name: 'Task', type: 'title' },
       { name: 'Date', type: 'date' },
       { name: 'Time', type: 'rich_text' },
-      { name: 'Task', type: 'title' },
-      { name: 'Tag', type: 'multi_select', options: [{ name: '工作' }, { name: '学习' }, { name: '健康' }, { name: '生活' }, { name: '关系' }] },
+      { name: 'Tag', type: 'multi_select', options: [{ name: '工作' }, { name: '学习' }, { name: '健康' }, { name: '人际' }, { name: '生活' }] },
       { name: 'Priority', type: 'select', options: [{ name: 'P1' }, { name: 'P2' }, { name: 'P3' }] },
-      { name: 'Status', type: 'checkbox' },
+      { name: 'Completed', type: 'checkbox' },
       { name: 'Notes', type: 'rich_text' },
     ],
   },
   {
     key: 'habit-tracker',
     name: '习惯打卡',
+    description: '习惯打卡、完成率和连续天数',
     properties: [
       { name: 'Habit', type: 'title' },
       { name: 'Category', type: 'select', options: [{ name: '健康' }, { name: '学习' }, { name: '成长' }, { name: '生活' }] },
@@ -102,6 +113,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'sleep-log',
     name: '睡眠记录',
+    description: '入睡时间、起床时间、睡眠时长和质量',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Bedtime', type: 'rich_text' },
@@ -116,6 +128,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'reading-log',
     name: '阅读记录',
+    description: '阅读时长、完成率、书籍和读后感',
     properties: [
       { name: 'Book', type: 'title' },
       { name: 'Date', type: 'date' },
@@ -129,18 +142,20 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'financial-transaction',
     name: '收支记录',
+    description: '个人收支、预算和现金流明细',
     properties: [
+      { name: 'Title', type: 'title' },
       { name: 'Date', type: 'date' },
       { name: 'Category', type: 'select', options: [{ name: '收入' }, { name: '支出' }, { name: '投资' }, { name: '储蓄' }] },
-      { name: 'Title', type: 'title' },
       { name: 'Amount', type: 'number', format: 'dollar' },
+      { name: 'Payment Method', type: 'select', options: [{ name: '现金' }, { name: '微信' }, { name: '支付宝' }, { name: '银行卡' }] },
       { name: 'Notes', type: 'rich_text' },
-      { name: 'Payment Method', type: 'select', options: [{ name: '现金' }, { name: '微信' }, { name: '银行卡' }, { name: '支付宝' }] },
     ],
   },
   {
     key: 'budget',
     name: '预算',
+    description: '月度预算与支出差异',
     properties: [
       { name: 'Month', type: 'date' },
       { name: 'Category', type: 'title' },
@@ -153,6 +168,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'weight-log',
     name: '体重记录',
+    description: '体重与 BMI 变化',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Weight', type: 'number', format: 'number' },
@@ -165,6 +181,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'body-fat-log',
     name: '体脂记录',
+    description: '体脂变化和目标检测',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Body Fat', type: 'number', format: 'percent' },
@@ -176,6 +193,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'workout-log',
     name: '训练记录',
+    description: '训练记录和热量消耗',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Workout', type: 'title' },
@@ -188,6 +206,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'ecommerce-product',
     name: '电商商品库',
+    description: '商品、利润和 ROI 追踪',
     properties: [
       { name: 'Product', type: 'title' },
       { name: 'Platform', type: 'select', options: [{ name: '抖音' }, { name: '闲鱼' }, { name: '拼多多' }, { name: '小红书' }] },
@@ -196,7 +215,6 @@ export const databaseSpecs: DatabaseSpec[] = [
       { name: 'Purchase Price', type: 'number', format: 'dollar' },
       { name: 'Selling Price', type: 'number', format: 'dollar' },
       { name: 'Logistics Cost', type: 'number', format: 'dollar' },
-      { name: 'After Sales Rate', type: 'number', format: 'percent' },
       { name: 'Promotion Cost', type: 'number', format: 'dollar' },
       { name: 'Sales', type: 'number', format: 'dollar' },
       { name: 'Gross Profit', type: 'number', format: 'dollar' },
@@ -205,21 +223,9 @@ export const databaseSpecs: DatabaseSpec[] = [
     ],
   },
   {
-    key: 'ecommerce-order',
-    name: '电商订单',
-    properties: [
-      { name: 'Order No', type: 'title' },
-      { name: 'Platform', type: 'select', options: [{ name: '抖音' }, { name: '闲鱼' }, { name: '拼多多' }, { name: '小红书' }] },
-      { name: 'Date', type: 'date' },
-      { name: 'Order Value', type: 'number', format: 'dollar' },
-      { name: 'Net Profit', type: 'number', format: 'dollar' },
-      { name: 'Status', type: 'select', options: [{ name: '待发货' }, { name: '已发货' }, { name: '已完成' }, { name: '待退款' }] },
-      { name: 'Notes', type: 'rich_text' },
-    ],
-  },
-  {
     key: 'task-board',
     name: '今日任务节点',
+    description: '今日待办节点和完成状态',
     properties: [
       { name: 'Task', type: 'title' },
       { name: 'Date', type: 'date' },
@@ -231,6 +237,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'want-to-buy',
     name: '待买清单',
+    description: '购买决策、预算和冲动消费分析',
     properties: [
       { name: 'Item', type: 'title' },
       { name: 'Budget', type: 'number', format: 'dollar' },
@@ -247,6 +254,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'english-listening',
     name: '听力',
+    description: '英语听力练习记录',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Material', type: 'rich_text' },
@@ -263,6 +271,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'english-speaking',
     name: '口语',
+    description: '口语练习记录',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Topic', type: 'title' },
@@ -274,6 +283,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'english-reading',
     name: '阅读',
+    description: '英语阅读与长难句复盘',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Question Type', type: 'rich_text' },
@@ -287,6 +297,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'english-writing',
     name: '写作',
+    description: '写作主题、参考和复盘',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Title', type: 'title' },
@@ -300,6 +311,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'life-goal',
     name: '人生目标',
+    description: '人生目标分层与目标进度',
     properties: [
       { name: 'Goal Name', type: 'title' },
       { name: 'Category', type: 'select', options: [{ name: '人生' }, { name: '年度' }, { name: '季度' }, { name: '月度' }, { name: '项目' }, { name: '任务' }] },
@@ -313,6 +325,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'ai-tool-library',
     name: 'AI工具库',
+    description: 'AI 工具、使用场景和价值评估',
     properties: [
       { name: 'Tool Name', type: 'title' },
       { name: 'Category', type: 'select', options: [{ name: 'ChatGPT' }, { name: 'Gemini' }, { name: 'GitHub Copilot' }, { name: 'Claude' }, { name: 'Notion AI' }, { name: 'Other' }] },
@@ -325,6 +338,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'agent-lab',
     name: 'Agent实验室',
+    description: 'Agent 原型、测试和问题记录',
     properties: [
       { name: 'Agent', type: 'title' },
       { name: 'Purpose', type: 'rich_text' },
@@ -339,6 +353,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'xp-log',
     name: 'XP',
+    description: '经验值与成长来源',
     properties: [
       { name: 'Date', type: 'date' },
       { name: 'Source', type: 'title' },
@@ -349,6 +364,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'health-file',
     name: '健康档案',
+    description: '健康报告与档案记录',
     properties: [
       { name: 'Record', type: 'title' },
       { name: 'Date', type: 'date' },
@@ -359,6 +375,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'important-docs',
     name: '重要文件',
+    description: '证件、保险与重要文件目录',
     properties: [
       { name: 'Document', type: 'title' },
       { name: 'Category', type: 'select', options: [{ name: '证件' }, { name: '文件' }, { name: '保险' }, { name: '合同' }, { name: '其他' }] },
@@ -369,6 +386,7 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'contacts',
     name: '联系人',
+    description: '社交和关系维系',
     properties: [
       { name: 'Name', type: 'title' },
       { name: 'Relation', type: 'select', options: [{ name: '家人' }, { name: '朋友' }, { name: '同事' }, { name: '客户' }, { name: '其他' }] },
@@ -380,11 +398,76 @@ export const databaseSpecs: DatabaseSpec[] = [
   {
     key: 'family-system',
     name: '家庭系统',
+    description: '家庭陪伴和规划记录',
     properties: [
       { name: 'Family Member', type: 'title' },
       { name: 'Type', type: 'select', options: [{ name: '陪伴' }, { name: '计划' }, { name: '关怀' }, { name: '日常' }] },
-      { name: 'Notes', type: 'rich_text' },
       { name: 'Date', type: 'date' },
+      { name: 'Notes', type: 'rich_text' },
     ],
   },
 ];
+
+export function buildNotionProperties(fields: FieldSpec[]): Record<string, unknown> {
+  const properties: Record<string, unknown> = {};
+
+  for (const field of fields) {
+    switch (field.type) {
+      case 'title':
+        properties[field.name] = { title: {} };
+        break;
+      case 'rich_text':
+        properties[field.name] = { rich_text: {} };
+        break;
+      case 'number':
+        properties[field.name] = {
+          number: {
+            format: field.format === 'dollar' ? 'dollar' : field.format === 'percent' ? 'percent' : 'number',
+          },
+        };
+        break;
+      case 'date':
+        properties[field.name] = { date: {} };
+        break;
+      case 'checkbox':
+        properties[field.name] = { checkbox: {} };
+        break;
+      case 'select':
+        properties[field.name] = {
+          select: {
+            options: (field.options ?? []).map((option) => ({
+              name: option.name,
+              color: option.color ?? 'default',
+            })),
+          },
+        };
+        break;
+      case 'multi_select':
+        properties[field.name] = {
+          multi_select: {
+            options: (field.options ?? []).map((option) => ({
+              name: option.name,
+              color: option.color ?? 'default',
+            })),
+          },
+        };
+        break;
+      case 'url':
+        properties[field.name] = { url: {} };
+        break;
+      case 'email':
+        properties[field.name] = { email: {} };
+        break;
+      case 'phone_number':
+        properties[field.name] = { phone_number: {} };
+        break;
+      case 'files':
+        properties[field.name] = { files: {} };
+        break;
+      default:
+        properties[field.name] = { rich_text: {} };
+    }
+  }
+
+  return properties;
+}
